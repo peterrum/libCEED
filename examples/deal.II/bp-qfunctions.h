@@ -20,6 +20,16 @@
 
 
 /**
+ * Context passed to libCEED Q-function.
+ */
+struct BuildContext
+{
+  CeedInt dim, space_dim;
+};
+
+
+
+/**
  * libCEED Q-function for building quadrature data for a mass operator
  */
 CEED_QFUNCTION(f_build_mass)

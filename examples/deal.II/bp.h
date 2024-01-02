@@ -90,16 +90,6 @@ struct BPInfo
 
 
 /**
- * Context passed to libCEED Q-function.
- */
-struct BuildContext
-{
-  CeedInt dim, space_dim;
-};
-
-
-
-/**
  * Base class of operators.
  */
 template <typename Number>
