@@ -84,14 +84,6 @@ struct Parameters
       AssertThrow(false, ExcInternalError());
   }
 
-  void
-  print()
-  {
-    dealii::ParameterHandler prm;
-    add_parameters(prm);
-    prm.print_parameters(std::cout, dealii::ParameterHandler::OutputStyle::ShortJSON);
-  }
-
 private:
   void
   add_parameters(ParameterHandler &prm)
