@@ -39,6 +39,11 @@
 #include <deal.II/lac/precondition.h>
 #include <deal.II/lac/solver_cg.h>
 
+// boost
+#include <boost/algorithm/string.hpp>
+
+#include <sstream>
+
 // include operators
 #include "bp.h"
 
@@ -54,12 +59,13 @@ struct Parameters
   bool         print_timings        = true;
 
   void
-  parse(const std::string file_name)
+  parse(const std::string json_file_content)
   {
     dealii::ParameterHandler prm;
     add_parameters(prm);
 
-    prm.parse_input(file_name, "", true);
+    std::istringstream stream(json_file_content);
+    prm.parse_input_from_json(stream);
 
     if (bp_string == "BP1")
       bp = BPType::BP1;
@@ -106,15 +112,10 @@ main(int argc, char *argv[])
 {
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-  Parameters params;
+  AssertThrow(argc == 2, ExcMessage("No input was provided!"));
 
-  if (argc > 1)
-    params.parse(std::string(argv[1]));
-  else
-    {
-      params.print();
-      return 0;
-    }
+  Parameters params;
+  params.parse(argv[1]);
 
   ConditionalOStream pout(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0);
 
