@@ -57,6 +57,7 @@ struct Parameters
   unsigned int n_global_refinements = 1;
   unsigned int fe_degree            = 2;
   bool         print_timings        = true;
+  std::string  libCEED_resouce      = "/cpu/self/avx/blocked";
 
   void
   parse(const std::string json_file_content)
@@ -99,6 +100,7 @@ private:
     prm.add_parameter("n global refinements", n_global_refinements);
     prm.add_parameter("fe degree", fe_degree);
     prm.add_parameter("print timings", print_timings);
+    prm.add_parameter("libCEED resouce", libCEED_resouce);
   }
 
 private:
@@ -201,7 +203,8 @@ main(int argc, char *argv[])
   };
 
   // create and test the libCEED operator
-  OperatorCeed<dim, Number> op_ceed(mapping, dof_handler, constraints, quadrature, bp);
+  OperatorCeed<dim, Number> op_ceed(
+    mapping, dof_handler, constraints, quadrature, bp, params.libCEED_resouce);
   test("ceed", op_ceed);
 
   // create and test a native deal.II operator

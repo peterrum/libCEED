@@ -143,12 +143,14 @@ public:
                const DoFHandler<dim>           &dof_handler,
                const AffineConstraints<Number> &constraints,
                const Quadrature<dim>           &quadrature,
-               const BPType                    &bp)
+               const BPType                    &bp,
+               const std::string               &resouce)
     : mapping(mapping)
     , dof_handler(dof_handler)
     , constraints(constraints)
     , quadrature(quadrature)
     , bp(bp)
+    , resouce(resouce)
   {
     reinit();
   }
@@ -189,7 +191,7 @@ public:
       }
 
     // 1) create CEED instance -> "MatrixFree"
-    const char *ceed_spec = "/cpu/self/avx/blocked";
+    const char *ceed_spec = resouce.c_str();
     CeedInit(ceed_spec, &ceed);
 
     // 2) create shape functions -> "ShapeInfo"
@@ -659,6 +661,11 @@ private:
    * Selected BP.
    */
   const BPType bp;
+
+  /**
+   * Resource name.
+   */
+  const std::string resouce;
 
   /**
    * Partitioner for distributed vectors.
