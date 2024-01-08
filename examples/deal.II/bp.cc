@@ -59,44 +59,75 @@ struct Parameters
   bool         print_timings        = true;
   std::string  libCEED_resouce      = "/cpu/self/avx/blocked";
 
-  void
-  parse(const std::string json_file_content)
+  bool
+  parse(int argc, char *argv[])
   {
-    dealii::ParameterHandler prm;
-    add_parameters(prm);
+    if (argc == 1 && (std::string(argv[0]) == "--help"))
+      {
+        std::cout << "Usage: ./bp [OPTION]..." << std::endl;
+        std::cout << std::endl;
+        std::cout << "--bp             name of benchmark (BP1-BP6)" << std::endl;
+        std::cout << "--n_refinements  number of refinements (0-)" << std::endl;
+        std::cout << "--fe_degree      polynomial degree (1-)" << std::endl;
+        std::cout << "--print_timings  name of benchmark (0, 1)" << std::endl;
+        std::cout << "--resource       name of resource (e.g., /cpu/self/avx/blocked)" << std::endl;
 
-    std::istringstream stream(json_file_content);
-    prm.parse_input_from_json(stream);
+        return true;
+      }
 
-    if (bp_string == "BP1")
-      bp = BPType::BP1;
-    else if (bp_string == "BP2")
-      bp = BPType::BP2;
-    else if (bp_string == "BP3")
-      bp = BPType::BP3;
-    else if (bp_string == "BP4")
-      bp = BPType::BP4;
-    else if (bp_string == "BP5")
-      bp = BPType::BP5;
-    else if (bp_string == "BP6")
-      bp = BPType::BP6;
-    else
-      AssertThrow(false, ExcInternalError());
+    AssertThrow(argc % 2 == 0, ExcInternalError());
+
+    while (argc > 0)
+      {
+        std::string label(argv[0]);
+
+        if ("--bp" == label)
+          {
+            std::string bp_string(argv[1]);
+
+            if (bp_string == "BP1")
+              bp = BPType::BP1;
+            else if (bp_string == "BP2")
+              bp = BPType::BP2;
+            else if (bp_string == "BP3")
+              bp = BPType::BP3;
+            else if (bp_string == "BP4")
+              bp = BPType::BP4;
+            else if (bp_string == "BP5")
+              bp = BPType::BP5;
+            else if (bp_string == "BP6")
+              bp = BPType::BP6;
+            else
+              AssertThrow(false, ExcInternalError());
+          }
+        else if ("--n_refinements" == label)
+          {
+            n_global_refinements = std::atoi(argv[1]);
+          }
+        else if ("--fe_degree" == label)
+          {
+            fe_degree = std::atoi(argv[1]);
+          }
+        else if ("--print_timings" == label)
+          {
+            print_timings = std::atoi(argv[1]);
+          }
+        else if ("--resource" == label)
+          {
+            libCEED_resouce = std::string(argv[1]);
+          }
+        else
+          {
+            AssertThrow(false, ExcNotImplemented());
+          }
+
+
+        argc -= 2;
+        argv += 2;
+      }
+
+    return false;
   }
-
-private:
-  void
-  add_parameters(ParameterHandler &prm)
-  {
-    prm.add_parameter("bp", bp_string, "", Patterns::Selection("BP1|BP2|BP3|BP4|BP5|BP6"));
-    prm.add_parameter("n global refinements", n_global_refinements);
-    prm.add_parameter("fe degree", fe_degree);
-    prm.add_parameter("print timings", print_timings);
-    prm.add_parameter("libCEED resouce", libCEED_resouce);
-  }
-
-private:
-  std::string bp_string = "BP5";
 };
 
 
@@ -106,10 +137,9 @@ main(int argc, char *argv[])
 {
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-  AssertThrow(argc == 2, ExcMessage("No input was provided!"));
-
   Parameters params;
-  params.parse(argv[1]);
+  if (params.parse(argc - 1, argv + 1))
+    return 0;
 
   ConditionalOStream pout(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0);
 
