@@ -11,14 +11,10 @@ cmake ../ -DDEAL_II_DIR=~/path/to/dealii -DCEED_DIR=~/path/to/libceed
 make
 ```
 
-Run the executable to create an input file:
+To run the executable, write:
 
 ```
-./bp > input.json
+./bp
 ```
 
-Modify the input file and run the executable:
-```
-mpirun -np 8 ./bp input.json
-```
-
+Optional command-line arguments are shown by adding the command-line argument "--help".
